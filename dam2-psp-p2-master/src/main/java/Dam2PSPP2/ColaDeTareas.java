@@ -1,5 +1,6 @@
 package Dam2PSPP2;
 
+import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 
 public class ColaDeTareas {
@@ -7,61 +8,71 @@ public class ColaDeTareas {
 
 
     private Integer[] numerosConsumir;
-    boolean ocupada;
 
     public ColaDeTareas() {
         numerosConsumir=new Integer[10];
-        ocupada=false;
     }
 
-    public void anadeNumero(int numeroAnadir) {
-        boolean encontradoNull=false;
-        int posicionNull=0;
-        while (!encontradoNull){
-            if(numerosConsumir[posicionNull]==null){
-                encontradoNull=true;
-            }else {
-                posicionNull++;
+    public synchronized void anadeNumero(int numeroAnadir) {
+
+        try{
+            Random r =new Random();
+            wait(r.nextInt(1000));
+            int posicionNull=0;
+            if(!estoyLLena()){
+                for (int i=0;i<numerosConsumir.length;i++){
+                    if (numerosConsumir[i]==null){
+                        posicionNull=i;
+                        break;
+                    }
+                }
+                numerosConsumir[posicionNull]=numeroAnadir;
             }
+        }catch (Exception e){
+            e.getMessage();
         }
-        numerosConsumir[posicionNull]=numeroAnadir;
+        notify();
     }
 
 
-    public Integer cunsumirNumero() {
-        int numeroConsumido=numerosConsumir[0];
-        for (int i=0;i<numerosConsumir.length-1;i++){
-            numerosConsumir[i]=numerosConsumir[i+1];
-        }
-        numerosConsumir[numerosConsumir.length-1]=null;
-        return numeroConsumido;
-    }
+    public synchronized Integer cunsumirNumero() {
 
+        try{
+            Random r =new Random();
+            wait(r.nextInt(1000));
+            Integer numeroConsumido=numerosConsumir[0];
+            if (numeroConsumido!=null){
 
-
-    public boolean isOcupada() {
-        return ocupada;
-    }
-
-    public void setOcupada(boolean ocupada) {
-        this.ocupada = ocupada;
-    }
-
-    public boolean isLlena() {
-        boolean llena=true;
-        int contador=0;
-        while (llena && contador<numerosConsumir.length){
-            if (numerosConsumir[contador]==null){
-                llena=false;
+                for (int i=0;i<numerosConsumir.length-1;i++){
+                    numerosConsumir[i]=numerosConsumir[i+1];
+                }
+                numerosConsumir[numerosConsumir.length-1]=null;
+                notify();
+                return numeroConsumido;
             }else {
-                contador++;
+                notify();
+                return -1;
             }
+        }catch (Exception e){
+            e.getMessage();
+            return -1;
         }
-        return llena;
+
+
     }
+
 
     public Integer[] getNumerosConsumir() {
         return numerosConsumir;
     }
 
+    private boolean estoyLLena(){
+        boolean estoyLLena=true;
+        for (Integer i:numerosConsumir){
+            if (i==null){
+                estoyLLena=false;
+            }
+        }
+        return estoyLLena;
+    }
 }

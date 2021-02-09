@@ -35,16 +35,52 @@ public final class App {
 
 
 
-       /* List<Productor> productores=new ArrayList<Productor>();
-        List<Consumidor> consumidores=new ArrayList<Consumidor>();*/
+        List<Productor> productores=new ArrayList<Productor>();
+        List<Consumidor> consumidores=new ArrayList<Consumidor>();
+
         Random random=new Random();
         for (int i = 0; i < numProductores; ++i) {
-          Productor productor= new Productor(random.nextInt(40)+5,i,this);
+          Productor productor= new Productor(random.nextInt(5),i,cola);
+          productores.add(productor);
         }
 
         for (int i = 0; i < numConsumidores; ++i) {
-          Consumidor consumidor=new Consumidor(random.nextInt(40)+5, i,this);
+          Consumidor consumidor=new Consumidor(random.nextInt(5), i,cola);
+          consumidores.add(consumidor);
         }
+
+        try {
+            for (Productor productor:productores){
+                productor.start();
+            }
+            for (Consumidor consumidor:consumidores){
+                consumidor.start();
+            }
+        }catch (Exception e){
+            e.getMessage();
+        }
+
+        try {
+            for (Productor productor:productores){
+                productor.join();
+            }
+            for (Consumidor consumidor:consumidores){
+                consumidor.join();
+            }
+        }catch (Exception e){
+            e.getMessage();
+        }
+
+
+        Integer[] numerosConsumir = cola.getNumerosConsumir();
+        String salidaCola="La cola ha quedado con los siguientes numeros ";
+        for (Integer i :numerosConsumir){
+            if(i!=null){
+                salidaCola+=" "+i.intValue();
+            }
+        }
+        System.out.println(salidaCola);
+        System.out.println("Programa terminado");
 
 
 
@@ -58,7 +94,7 @@ public final class App {
      * @param args The arguments of the program.
      */
     public static void main(String[] args) {
-        new App(20, 1000).empezar();
+        new App(50, 10).empezar();
     }
 
 
